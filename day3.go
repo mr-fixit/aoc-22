@@ -16,7 +16,8 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	// scanner.Split(bufio.ScanBytes)
-	sum := 0
+	groupOf3 := make([]string, 0)
+	var sum, sumPart2 int
 	for scanner.Scan() {
 		wholeLine := scanner.Text()
 		halfLen := len(wholeLine) / 2
@@ -28,11 +29,19 @@ func main() {
 		}
 		b := only[0]
 		bval := value(b)
-
-		fmt.Println(string(only), b, int(b), bval)
 		sum += bval
+
+		groupOf3 = append(groupOf3, wholeLine)
+		if len(groupOf3) == 3 {
+			only := intersection(intersection([]byte(groupOf3[0]), []byte(groupOf3[1])), []byte(groupOf3[2]))
+			val := value(only[0])
+			sumPart2 += val
+			groupOf3 = make([]string, 0)
+		}
+
 	}
 	fmt.Println("part 1:", sum)
+	fmt.Println("part 2:", sumPart2)
 }
 
 func value(b byte) int {
