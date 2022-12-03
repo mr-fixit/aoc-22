@@ -9,7 +9,6 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	var max int
-	arr := make([]int, 0)
 	for {
 		var sum int
 		for {
