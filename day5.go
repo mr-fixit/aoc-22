@@ -24,7 +24,7 @@ func main() {
 	var stacklines []string
 	for scanner.Scan() {
 		wholeLine := scanner.Text()
-		fmt.Println(readingMode, "'", wholeLine, "'")
+		//fmt.Println(readingMode, "'", wholeLine, "'")
 		if readingMode == "stacks" {
 			//  [D]
 			//  [N] [C]
@@ -35,7 +35,7 @@ func main() {
 				//stacksP1 = buildStacks(stacklines)
 				stacksP1 = buildStacks(stacklines)
 				stacksP2 = buildStacks(stacklines)
-				fmt.Println("stacks: ", stacksP1)
+				// fmt.Println("starting stack: ", stacksP1)
 				scanner.Scan()
 			}
 			stacklines = append(stacklines, wholeLine)
@@ -51,16 +51,23 @@ func main() {
 			//fmt.Println("stacks: ", stackP2)
 		}
 	}
-	var p1, p2 = "", ""
-	for i := 0; i < len(stacksP2); i++ {
-		stack := stacksP1[i]
-		p1 += string(stack[len(stack)-1])
-		stack = stacksP2[i]
-		p2 += string(stack[len(stack)-1])
-	}
-	// part1 WSFTMRHPP
-	// part2 GSLCMFBRP
+	var p1, p2 = getAnswer(stacksP1), getAnswer(stacksP2)
 	fmt.Println("part1: ", p1, "part2: ", p2)
+	if p1 != "WSFTMRHPP" {
+		println("fail part 1")
+	}
+	if p2 != "GSLCMFBRP" {
+		println("fail part 2")
+	}
+}
+
+func getAnswer(stacks []string) (answer string) {
+	answer = ""
+	for i := 0; i < len(stacks); i++ {
+		stack := stacks[i]
+		answer += string(stack[len(stack)-1])
+	}
+	return
 }
 
 func popChar(str string) (char string, newStr string) {
