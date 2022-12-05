@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-var stacks []string
+var stacksP1 []string
+var stacksP2 []string
 
 func main() {
 	const dayStr = "5"
@@ -21,41 +22,45 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	readingMode := "stacks"
 	var stacklines []string
-	var stacks []string
 	for scanner.Scan() {
 		wholeLine := scanner.Text()
-		//  [D]
-		//  [N] [C]
-		//  [Z] [M] [P]
-		//   1   2   3
-
-		// move 1 from 2 to 1
-		// move 3 from 1 to 3
-		// move 2 from 2 to 1
-		// move 1 from 1 to 2
 		fmt.Println(readingMode, "'", wholeLine, "'")
 		if readingMode == "stacks" {
+			//  [D]
+			//  [N] [C]
+			//  [Z] [M] [P]
+			//   1   2   3
 			if strings.Contains(wholeLine, "1") {
 				readingMode = "moves"
-				stacks = buildStacks(stacklines)
-				fmt.Println("stacks: ", stacks)
+				//stacksP1 = buildStacks(stacklines)
+				stacksP1 = buildStacks(stacklines)
+				stacksP2 = buildStacks(stacklines)
+				fmt.Println("stacks: ", stacksP1)
 				scanner.Scan()
 			}
 			stacklines = append(stacklines, wholeLine)
 		} else { // reading moves
+			// move 1 from 2 to 1
+			// move 3 from 1 to 3
+			// move 2 from 2 to 1
+			// move 1 from 1 to 2
 			var nTimes, fromStack, toStack int
 			fmt.Sscanf(wholeLine, "move %d from %d to %d", &nTimes, &fromStack, &toStack)
-			doMove(stacks, nTimes, fromStack, toStack)
-			fmt.Println("stacks: ", stacks)
+			stacksP1 = doMove1(stacksP1, nTimes, fromStack, toStack)
+			stacksP2 = doMove2(stacksP2, nTimes, fromStack, toStack)
+			//fmt.Println("stacks: ", stackP2)
 		}
 	}
-	var p1 = ""
-	for i := 0; i < len(stacks); i++ {
-		stack := stacks[i]
-		lastChar := stack[len(stack)-1]
-		p1 += string(lastChar)
+	var p1, p2 = "", ""
+	for i := 0; i < len(stacksP2); i++ {
+		stack := stacksP1[i]
+		p1 += string(stack[len(stack)-1])
+		stack = stacksP2[i]
+		p2 += string(stack[len(stack)-1])
 	}
-	fmt.Println("part1: ", p1)
+	// part1 WSFTMRHPP
+	// part2 GSLCMFBRP
+	fmt.Println("part1: ", p1, "part2: ", p2)
 }
 
 func popChar(str string) (char string, newStr string) {
@@ -65,15 +70,28 @@ func popChar(str string) (char string, newStr string) {
 	return
 }
 
-func doMove(stacks []string, nTimes, iFrom, iTo int) {
-	//println(nTimes, iFrom, iTo)
+func doMove1(stacks []string, nTimes, iFrom, iTo int) (after []string) {
+	after = stacks
 	for i := 0; i < nTimes; i++ {
 		fromStack := stacks[iFrom-1]
 		char, newFrom := popChar(fromStack)
-		stacks[iFrom-1] = newFrom
+		after[iFrom-1] = newFrom
 		newTo := stacks[iTo-1] + char
-		stacks[iTo-1] = newTo
+		after[iTo-1] = newTo
 	}
+	return
+}
+
+func doMove2(stacks []string, nTimes, iFrom, iTo int) (after []string) {
+	//println(nTimes, iFrom, iTo)
+	after = stacks
+	fromStack := stacks[iFrom-1]
+	fromLen := len(fromStack)
+	moving := string(fromStack[fromLen-nTimes:])
+	after[iFrom-1] = fromStack[0 : fromLen-len(moving)]
+	newTo := stacks[iTo-1] + moving
+	after[iTo-1] = newTo
+	return
 }
 
 func buildStacks(lines []string) (stacks []string) {
