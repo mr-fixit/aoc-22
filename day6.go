@@ -28,12 +28,12 @@ func main() {
 			})
 			// fmt.Println(c4, b)
 			// look for 4 unique
-			for j := 0; j < 3; j++ {
+			for j := 0; j < 13; j++ {
 				// fmt.Println(j, b[j], b[j+1], b[j] == b[j+1])
 				if b[j] == b[j+1] {
 					break
 				}
-				if j == 2 {
+				if j == 12 {
 					found = true
 					fmt.Println("found", c4, "index", i)
 				}
