@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 )
 
 type Node struct {
@@ -34,7 +35,7 @@ func readInput() (topNode *Node) {
 			//fmt.Println("cmd: ", cmd, dirName)
 			if cmd == "cd" {
 				if dirName == "/" {
-					topNode = &Node{name: "/", subNodes: make(map[string]*Node)}
+					topNode = &Node{name: "/", nodeType: "dir", subNodes: make(map[string]*Node)}
 					curNode = topNode
 				} else if dirName == ".." {
 					curNode.parent.size += curNode.size
@@ -76,12 +77,10 @@ func Print(node *Node, depth int) {
 	return
 }
 
-func SumOfThoseDirs(node *Node, sum *int) {
-	if node.nodeType == "dir" && node.size <= 100000 {
-		*sum += node.size
-	}
+func VisitNodes(node *Node, visitor func(*Node)) {
+	visitor(node)
 	for _, subNode := range node.subNodes {
-		SumOfThoseDirs(subNode, sum)
+		VisitNodes(subNode, visitor)
 	}
 }
 
@@ -91,6 +90,23 @@ func main() {
 	Print(topNode, 0)
 
 	sum := 0
-	SumOfThoseDirs(topNode, &sum)
+	VisitNodes(topNode, func(n *Node) {
+		if n.nodeType == "dir" && n.size <= 100000 {
+			sum += n.size
+		}
+	})
 	fmt.Println("part 1:", sum)
+
+	curFree := 70000000 - topNode.size
+	needToDelete := 30000000 - curFree
+	var sizes []int
+	VisitNodes(topNode, func(n *Node) {
+		if n.nodeType == "dir" && n.size >= needToDelete {
+			sizes = append(sizes, n.size)
+		}
+	})
+	sort.Slice(sizes, func(i, j int) bool {
+		return sizes[i] < sizes[j]
+	})
+	fmt.Println("part 2: ", sizes[0])
 }
