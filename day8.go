@@ -42,8 +42,8 @@ func main() {
 	vis := makeVis(nrows, ncols)
 	nVisible := 2 * (nrows + ncols - 2)
 
-	for x := 1; x < ncols-1; x++ {
-		for y := 1; y < nrows-1; y++ {
+	for x := 1; x < ncols-2; x++ {
+		for y := 1; y < nrows-2; y++ {
 			h := forest[x][y]
 			if (vis[x-1][y] && forest[x-1][y] < h) ||
 				(vis[x+1][y] && forest[x+1][y] < h) ||
