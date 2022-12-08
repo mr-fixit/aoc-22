@@ -47,8 +47,9 @@ func print2D(m [][]int) {
 }
 
 func main() {
+
 	forest, nrows, ncols := readInput()
-	print2D(forest)
+	// print2D(forest)
 
 	vis := makeVis(nrows, ncols)
 	nVisible := 2 * (nrows + ncols - 2)
@@ -58,30 +59,22 @@ func main() {
 
 			// for each tree in the interior
 			h := forest[y][x]
-
-			for dx := -1; dx <= 1; dx += 2 {
-
-				for nx := x + dx; !vis[y][x] && nx >= 0 && nx < nrows; nx += dx {
-					if h <= forest[y][nx] {
+			// fmt.Println("doing ", x, y, h)
+			for _, dxdy := range [][]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
+				// fmt.Println("  dxdy:", dxdy)
+				dx := dxdy[0]
+				dy := dxdy[1]
+				for nx, ny := x+dx, y+dy; !vis[y][x] && nx >= 0 && nx < ncols && ny >= 0 && ny < nrows; nx, ny = nx+dx, ny+dy {
+					// fmt.Println("     nx ny height[nx,ny]", nx, ny, forest[ny][nx])
+					if h <= forest[ny][nx] {
+						// fmt.Println("      hidden")
 						break // tree is hidden
 					}
-					if nx == 0 || nx == nrows-1 {
+					if nx == 0 || nx == nrows-1 || ny == 0 || ny == ncols-1 {
 						// we made it to the edge, we must be visible
 						vis[y][x] = true
 						nVisible++
-						break
-					}
-				}
-			}
-			for dy := -1; dy <= 1; dy += 2 {
-				for ny := y + dy; !vis[y][x] && ny >= 0 && ny < ncols; ny += dy {
-					if h <= forest[ny][x] {
-						break
-					}
-					if ny == 0 || ny == ncols-1 {
-						// we made it to the edge, we must be visible
-						vis[y][x] = true
-						nVisible++
+						// fmt.Println("visible! now", nVisible)
 						break
 					}
 				}
@@ -92,7 +85,7 @@ func main() {
 	if nVisible == 1798 {
 		status = "RIGHT "
 	} else {
-		status = "WRONG"
+		status = "WRONG, should be 1798"
 	}
 	fmt.Printf("part1: %d %s", nVisible, status)
 
