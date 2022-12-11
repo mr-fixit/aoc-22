@@ -4,14 +4,17 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 )
 
 type Monkey struct {
-	items                   []string
+	items                   []int
 	operation               func(int) int
 	testDivisor             int
 	trueMonkey, falseMonkey int
+	count                   int
 }
 
 var monkies []*Monkey
@@ -33,7 +36,14 @@ func day11(fileName string) {
 
 		scanner.Scan()
 		var itemsStr string = strings.Split(scanner.Text(), ":")[1]
-		thisMonkey.items = strings.Split(itemsStr, ",")
+		for _, itemStr := range strings.Split(itemsStr, ",") {
+			itemInt, err := strconv.Atoi(strings.TrimSpace(itemStr))
+			if err != nil {
+				panic(err)
+			} else {
+				thisMonkey.items = append(thisMonkey.items, itemInt)
+			}
+		}
 
 		scanner.Scan()
 		thisMonkey.operation = parseOpStr(scanner.Text())
@@ -50,9 +60,36 @@ func day11(fileName string) {
 
 		scanner.Scan()
 	}
-	fmt.Println(monkies)
-	for i, v := range monkies {
-		fmt.Println(i, *v)
+	PrintMonkies()
+
+	for roundIdx := 0; roundIdx < 20; roundIdx++ {
+		for _, monkey := range monkies {
+			for _, wl := range monkey.items {
+				monkey.count += 1
+				wl = monkey.operation(wl)
+				wl /= 3
+				trueDst := monkies[monkey.trueMonkey]
+				falseDst := monkies[monkey.falseMonkey]
+				if wl%monkey.testDivisor == 0 {
+					trueDst.items = append(trueDst.items, wl)
+				} else {
+					falseDst.items = append(falseDst.items, wl)
+				}
+			}
+			monkey.items = make([]int, 0)
+		}
+		fmt.Println("Round ", roundIdx+1)
+		PrintMonkies()
+	}
+	sort.Slice(monkies, func(i, j int) bool {
+		return monkies[i].count > monkies[j].count
+	})
+	fmt.Println("part 1: ", monkies[0].count*monkies[1].count)
+}
+
+func PrintMonkies() {
+	for _, v := range monkies {
+		fmt.Println("  ", v.items)
 	}
 }
 
