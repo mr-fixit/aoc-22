@@ -7,7 +7,7 @@ import (
 	"sort"
 )
 
-func main() {
+func day6() {
 	const dayStr = "6"
 	//file, err := os.Open("day" + dayStr + "_0.txt")
 	file, err := os.Open("day" + dayStr + "_1.txt")

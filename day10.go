@@ -11,8 +11,8 @@ var cycleTimes = map[string]int{
 	"addx": 2,
 }
 
-func main() {
-	file, err := os.Open("day10_1.txt")
+func day10(fileName string) {
+	file, err := os.Open(fileName)
 	if err != nil {
 		fmt.Println("err: ", err)
 		os.Exit(1)
@@ -26,17 +26,35 @@ func main() {
 		var opCode string
 		var opValue int
 		fmt.Sscanf(scanner.Text(), "%s %d", &opCode, &opValue)
-		opTime := cycleTimes[opCode]
 		// fmt.Printf("%d: code: %s opval: %d x: %d\n", curCycle, opCode, opValue, x)
 
-		if curCycle+opTime > cycleToCheck {
-			sigStrength := cycleToCheck * x
-			sigStrengthSum += sigStrength
-			fmt.Printf("  %d %d %d\n", cycleToCheck, sigStrength, sigStrengthSum)
-			cycleToCheck += 40
-		}
+		for opTime := cycleTimes[opCode]; opTime > 0; opTime-- {
+			rayX := (curCycle % 40) - 1
+			if x-rayX < 2 && x-rayX > -2 {
+				fmt.Printf("#")
+			} else {
+				fmt.Printf(".")
+			}
+			curCycle++
+			if (curCycle-1)%40 == 0 {
+				fmt.Println()
+			}
+			if curCycle == cycleToCheck {
+				sigStrength := cycleToCheck * x
+				sigStrengthSum += sigStrength
+				// fmt.Printf("  %d %d %d\n", cycleToCheck, sigStrength, sigStrengthSum)
+				cycleToCheck += 40
+			}
 
-		curCycle += opTime
+		}
+		// if curCycle+opTime > cycleToCheck {
+		// 	sigStrength := cycleToCheck * x
+		// 	sigStrengthSum += sigStrength
+		// 	fmt.Printf("  %d %d %d\n", cycleToCheck, sigStrength, sigStrengthSum)
+		// 	cycleToCheck += 40
+		// }
+
+		// curCycle += opTime
 		if opCode == "addx" {
 			x += opValue
 		}

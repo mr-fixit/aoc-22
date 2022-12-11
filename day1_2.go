@@ -7,7 +7,7 @@ import (
 	"sort"
 )
 
-func main() {
+func day1_2() {
 	scanner := bufio.NewScanner(os.Stdin)
 	arr := make([]int, 0)
 	for {

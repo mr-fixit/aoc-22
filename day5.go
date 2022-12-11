@@ -10,7 +10,7 @@ import (
 var stacksP1 []string
 var stacksP2 []string
 
-func main() {
+func day5() {
 	const dayStr = "5"
 	//file, err := os.Open("day" + dayStr + "_0.txt")
 	file, err := os.Open("day" + dayStr + "_1.txt")
