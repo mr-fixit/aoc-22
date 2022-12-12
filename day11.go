@@ -61,13 +61,18 @@ func day11(fileName string) {
 		scanner.Scan()
 	}
 	PrintMonkies()
+	thing := 1
+	for _, v := range monkies {
+		thing *= v.testDivisor
+	}
 
-	for roundIdx := 0; roundIdx < 20; roundIdx++ {
+	for roundIdx := 0; roundIdx < 10000; roundIdx++ {
 		for _, monkey := range monkies {
 			for _, wl := range monkey.items {
 				monkey.count += 1
 				wl = monkey.operation(wl)
-				wl /= 3
+				// wl /= 3
+				wl %= thing
 				trueDst := monkies[monkey.trueMonkey]
 				falseDst := monkies[monkey.falseMonkey]
 				if wl%monkey.testDivisor == 0 {
