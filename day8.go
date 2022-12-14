@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func readInput() ([][]int, int, int) {
+func readInput_8() ([][]int, int, int) {
 	out := make([][]int, 0)
 	file, err := os.Open("day8_1.txt")
 	if err != nil {
@@ -46,9 +46,9 @@ func print2D(m [][]int) {
 	}
 }
 
-func main() {
+func day8() {
 
-	forest, nrows, ncols := readInput()
+	forest, nrows, ncols := readInput_8()
 	// print2D(forest)
 
 	vis := makeVis(nrows, ncols)

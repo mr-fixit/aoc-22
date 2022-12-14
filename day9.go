@@ -12,26 +12,31 @@ import (
 	each line
 		read line
 		move N moves
-			move head
-			calc dist
-			move tail
-			add tail position
+			move k1
+			if k2 moves
+			  move k2
+				if k3 moves... etc
+					... if kN == tail
+						add tail position
 	sort/unique tailPositions
 	count tailPositions
 */
 
-func main() {
+const nKnots = 2
+
+var knotX = make([]int, nKnots)
+var knotY = make([]int, nKnots)
+var tailPositions = map[string]bool{"0 0": true}
+
+func day9(fileName string) {
 	fmt.Println("Day 9")
 
-	file, err := os.Open("day9_1.txt")
+	file, err := os.Open(fileName)
 	if err != nil {
 		fmt.Println("err: ", err)
 		os.Exit(1)
 	}
-	var headX, headY, tailX, tailY int
-	tailPositions := map[string]bool{
-		"0 0": true,
-	}
+	var headX, headY int
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -49,33 +54,45 @@ func main() {
 		headMove := headMoveMap[direction]
 		fmt.Println("  headMove", headMove)
 		for i := 0; i < nTimes; i++ {
-			headX += headMove[0]
-			headY += headMove[1]
-
-			tailMoved := true
-			if headX-tailX == 2 {
-				tailX += 1
-				tailY = headY
-			} else if headX-tailX == -2 {
-				tailX -= 1
-				tailY = headY
-			} else if headY-tailY == 2 {
-				tailY += 1
-				tailX = headX
-			} else if headY-tailY == -2 {
-				tailY -= 1
-				tailX = headX
-			} else {
-				tailMoved = false
-			}
-			if tailMoved {
-				tailPositionStr := fmt.Sprintf("%d %d", tailX, tailY)
-				fmt.Println("moved tailPosition", tailX, tailY)
-				tailPositions[tailPositionStr] = true
-			}
+			moveKnot(0, headMove[0], headMove[1])
 		} // for nTimes
 		fmt.Println("head now at ", headX, headY)
 	}
 	fmt.Println("part1: ", len(tailPositions))
 
+}
+
+func moveKnot(knotIndex int, dx int, dy int) {
+	knotX[knotIndex] += dx
+	knotY[knotIndex] += dy
+
+	headX := knotX[knotIndex]
+	headY := knotY[knotIndex]
+	if knotIndex == nKnots-1 {
+		tailPositionStr := fmt.Sprintf("%d %d", headX, headY)
+		fmt.Println("moved tailPosition", headX, headY)
+		tailPositions[tailPositionStr] = true
+		return
+	}
+	tailX := knotX[knotIndex+1]
+	tailY := knotY[knotIndex+1]
+	var dx1, dy1 int
+	deltaX := headX - tailX
+	deltaY := headY - tailY
+	if deltaX == 2 {
+		dx1 = 1
+		dy1 = deltaY
+	} else if deltaX == -2 {
+		dx1 = -1
+		dy1 = deltaY
+	} else if deltaY == 2 {
+		dy1 = 1
+		dx1 = deltaX
+	} else if deltaY == -2 {
+		dy1 = -1
+		dx1 = deltaX
+	} else {
+		return
+	}
+	moveKnot(knotIndex+1, dx1, dy1)
 }

@@ -15,7 +15,7 @@ type Node struct {
 	size     int
 }
 
-func readInput() (topNode *Node) {
+func readInput_7() (topNode *Node) {
 	const dayStr = "7"
 	//file, err := os.Open("day" + dayStr + "_0.txt")
 	file, err := os.Open("day" + dayStr + "_1.txt")
@@ -84,8 +84,8 @@ func VisitNodes(node *Node, visitor func(*Node)) {
 	}
 }
 
-func main() {
-	var topNode = readInput()
+func day7() {
+	var topNode = readInput_7()
 	fmt.Println("topNode: ", topNode)
 	Print(topNode, 0)
 

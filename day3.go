@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func main() {
+func day3() {
 	//file, err := os.Open("day3_0.txt")
 	file, err := os.Open("day3_1.txt")
 	if err != nil {

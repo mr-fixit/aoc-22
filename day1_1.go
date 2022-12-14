@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func main() {
+func day1_1() {
 	scanner := bufio.NewScanner(os.Stdin)
 	var max int
 	for {
