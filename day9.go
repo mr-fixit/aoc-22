@@ -22,7 +22,7 @@ import (
 	count tailPositions
 */
 
-const nKnots = 2
+const nKnots = 10
 
 var knotX = make([]int, nKnots)
 var knotY = make([]int, nKnots)
