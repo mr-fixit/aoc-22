@@ -3,11 +3,18 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/fatih/color"
+	"golang.org/x/exp/slices"
 )
 
 type ByteMap struct {
 	bytes        [][]byte
 	nRows, nCols int
+}
+
+type Point struct {
+	x, y int
 }
 
 func inBounds(x, y int, board ByteMap) bool {
@@ -33,16 +40,6 @@ func readInput_12(fileName string) (out ByteMap) {
 		bytes = append(bytes, row)
 	}
 	return ByteMap{nRows: nRows, nCols: nCols, bytes: bytes}
-}
-
-func drawMap(m ByteMap) {
-	for y := 0; y < m.nRows; y++ {
-		fmt.Printf("%2d: ", y)
-		for x := 0; x < m.nCols; x++ {
-			fmt.Printf("%s", string(m.bytes[y][x]))
-		}
-		fmt.Println()
-	}
 }
 
 func findEnds(m ByteMap) (startX, startY, endX, endY int) {
@@ -73,30 +70,35 @@ func canGo(x, y, nx, ny int, b ByteMap, cost [][]int) (canGo bool) {
 var sX, sY, eX, eY int
 
 func day12(fileName string) {
-
+	var kMaxCost = 9999999
 	b := readInput_12(fileName)
-	drawMap(b)
 	sX, sY, eX, eY = findEnds(b)
 	fmt.Println("start: ", sX, sY)
 	fmt.Println("end: ", eX, eY)
+	redOnes := []Point{{sX, sY}, {eX, eY}}
+	drawMap12(b, redOnes)
 
-	todo := [][]int{{sX, sY}}
+	unvisited := [][]int{}
 	cost := make([][]int, b.nRows)
 	for y := 0; y < b.nRows; y++ {
-		//cost = append(cost, make([]int, b.nRows))
 		cost[y] = make([]int, b.nCols)
 		for x := 0; x < b.nCols; x++ {
-			cost[y][x] = 1000000
+			cost[y][x] = kMaxCost
+			unvisited = append(unvisited, []int{x, y})
 		}
 	}
 	cost[sY][sX] = 0
 
-	for len(todo) > 0 {
-		x := todo[0][0]
-		y := todo[0][1]
-		fmt.Println("doing ", x, y, cost[y][x], abs(eX-x)+abs(eY-y))
-		todo = todo[1:]
+	for len(unvisited) > 0 {
+		slices.SortFunc(unvisited, func(a, b []int) bool {
+			return cost[a[1]][a[0]] < cost[b[1]][b[0]]
+		})
+		x := unvisited[0][0]
+		y := unvisited[0][1]
+		// fmt.Println("doing ", x, y, cost[y][x], abs(eX-x)+abs(eY-y))
+		unvisited = unvisited[1:]
 		curCost := cost[y][x]
+		//drawIntMap(cost, kMaxCost)
 		for _, dxdy := range [][]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
 			newX := x + dxdy[0]
 			newY := y + dxdy[1]
@@ -106,9 +108,39 @@ func day12(fileName string) {
 					fmt.Println("end cost", curCost+1)
 					os.Exit(0)
 				}
-				todo = append(todo, []int{newX, newY})
 			}
 		}
 	}
+	drawIntMap(cost, kMaxCost)
+}
 
+func drawMap12(m ByteMap, redOnes []Point) {
+	red := color.New(color.FgRed).PrintfFunc()
+
+	for y := 0; y < m.nRows; y++ {
+		fmt.Printf("%3d: ", y)
+		for x := 0; x < m.nCols; x++ {
+			if slices.Contains(redOnes, Point{x, y}) {
+				red("%s", string(m.bytes[y][x]))
+			} else {
+				fmt.Printf("%s", string(m.bytes[y][x]))
+			}
+		}
+		fmt.Println()
+	}
+}
+
+func drawIntMap(m [][]int, ignore int) {
+	for y := 0; y < len(m); y++ {
+		fmt.Printf("%4d: ", y)
+		for x := 0; x < len(m[y]); x++ {
+			v := m[y][x]
+			if v == ignore {
+				fmt.Printf("    ")
+			} else {
+				fmt.Printf("%4d", v)
+			}
+		}
+		fmt.Println()
+	}
 }
