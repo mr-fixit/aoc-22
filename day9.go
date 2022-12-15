@@ -27,6 +27,7 @@ const nKnots = 10
 var knotX = make([]int, nKnots)
 var knotY = make([]int, nKnots)
 var tailPositions = map[string]bool{"0 0": true}
+var xMax, xMin, yMax, yMin int
 
 func day9(fileName string) {
 	fmt.Println("Day 9")
@@ -37,7 +38,6 @@ func day9(fileName string) {
 		os.Exit(1)
 	}
 	var headX, headY int
-
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		var direction string
@@ -52,14 +52,15 @@ func day9(fileName string) {
 			"R": {1, 0}, "U": {0, -1}, "L": {-1, 0}, "D": {0, 1},
 		}
 		headMove := headMoveMap[direction]
-		fmt.Println("  headMove", headMove)
+		fmt.Println("  headMove", headMove, "times", nTimes)
+		// drawKnots("head")
 		for i := 0; i < nTimes; i++ {
 			moveKnot(0, headMove[0], headMove[1])
+			// drawKnots(fmt.Sprintf("dir:%s n:%d i:%d", direction, nTimes, i))
 		} // for nTimes
 		fmt.Println("head now at ", headX, headY)
 	}
 	fmt.Println("part1: ", len(tailPositions))
-
 }
 
 func moveKnot(knotIndex int, dx int, dy int) {
@@ -68,6 +69,7 @@ func moveKnot(knotIndex int, dx int, dy int) {
 
 	headX := knotX[knotIndex]
 	headY := knotY[knotIndex]
+	updateMinMax(knotIndex, headX, headY)
 	if knotIndex == nKnots-1 {
 		tailPositionStr := fmt.Sprintf("%d %d", headX, headY)
 		fmt.Println("moved tailPosition", headX, headY)
@@ -76,23 +78,67 @@ func moveKnot(knotIndex int, dx int, dy int) {
 	}
 	tailX := knotX[knotIndex+1]
 	tailY := knotY[knotIndex+1]
-	var dx1, dy1 int
-	deltaX := headX - tailX
-	deltaY := headY - tailY
-	if deltaX == 2 {
-		dx1 = 1
-		dy1 = deltaY
-	} else if deltaX == -2 {
-		dx1 = -1
-		dy1 = deltaY
-	} else if deltaY == 2 {
-		dy1 = 1
-		dx1 = deltaX
-	} else if deltaY == -2 {
-		dy1 = -1
-		dx1 = deltaX
-	} else {
+	moves := [][][]int{
+		{{1, 1}, {1, 1}, {0, 1}, {-1, 1}, {-1, 1}},
+		{{1, 1}, {0, 0}, {0, 0}, {0, 0}, {-1, 1}},
+		{{1, 0}, {0, 0}, {0, 0}, {0, 0}, {-1, 0}},
+		{{1, -1}, {0, 0}, {0, 0}, {0, 0}, {-1, -1}},
+		{{1, -1}, {1, -1}, {0, -1}, {-1, -1}, {-1, -1}},
+	}
+	dxdy := moves[tailY-headY+2][tailX-headX+2]
+	if dxdy[0] == 0 && dxdy[1] == 0 {
+		return
+	} else if dxdy[0] == 9 || dxdy[1] == 9 {
+		panic("wtf?")
+	}
+	moveKnot(knotIndex+1, dxdy[0], dxdy[1])
+}
+
+func drawKnots(title string) {
+	fmt.Println("---", title, "---")
+	for row := yMin; row <= yMax; row++ {
+		for col := xMin; col <= xMax; col++ {
+			noKnot := true
+			for knotIdx := 0; knotIdx < nKnots-1; knotIdx++ {
+				if col == knotX[knotIdx] && row == knotY[knotIdx] {
+					if knotIdx == 0 {
+						fmt.Print("H")
+					} else if knotIdx == nKnots-1 {
+						fmt.Printf("T")
+					} else {
+						fmt.Print(knotIdx)
+					}
+					noKnot = false
+					break
+				}
+			}
+			if noKnot {
+				if row == 0 && col == 0 {
+					fmt.Printf("s")
+				} else {
+					fmt.Print(".")
+				}
+			}
+		}
+		fmt.Println()
+	}
+
+}
+
+func updateMinMax(knotIdx, x, y int) {
+	if knotIdx != 0 {
 		return
 	}
-	moveKnot(knotIndex+1, dx1, dy1)
+	if x > xMax {
+		xMax = x
+	}
+	if y > yMax {
+		yMax = y
+	}
+	if x < xMin {
+		xMin = x
+	}
+	if y < yMin {
+		yMin = y
+	}
 }
