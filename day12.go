@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 
 	"github.com/fatih/color"
@@ -16,6 +17,8 @@ type ByteMap struct {
 type Point struct {
 	x, y int
 }
+
+var kMaxCost = 9999999
 
 func inBounds(x, y int, board ByteMap) bool {
 	return x >= 0 && y >= 0 && x < board.nCols && y < board.nRows
@@ -62,13 +65,7 @@ func findEnds(m ByteMap) (startX, startY, endX, endY int) {
 
 var sX, sY, eX, eY int
 
-func day12(fileName string, expectedValue int) {
-	var kMaxCost = 9999999
-	b := readInput_12(fileName)
-	sX, sY, eX, eY = findEnds(b)
-	fmt.Println("start: ", sX, sY)
-	fmt.Println("end: ", eX, eY)
-	drawMap12(b, Point{sX, sY}, Point{eX, eY})
+func SolveOne(b ByteMap, sX, sY int) (minCost int) {
 
 	unvisited := []Point{}
 	cost := make([][]int, b.nRows)
@@ -80,14 +77,14 @@ func day12(fileName string, expectedValue int) {
 		}
 	}
 	cost[sY][sX] = 0
-
-	for len(unvisited) > 0 {
+	done := false
+	for len(unvisited) > 0 && !done {
 		slices.SortFunc(unvisited, func(a, b Point) bool {
 			return cost[a.y][a.x] < cost[b.y][b.x]
 		})
 		x := unvisited[0].x
 		y := unvisited[0].y
-		fmt.Println("doing ", x, y, cost[y][x], abs(eX-x)+abs(eY-y))
+		// fmt.Println("doing ", x, y, cost[y][x], abs(eX-x)+abs(eY-y))
 		unvisited = unvisited[1:]
 		curCost := cost[y][x]
 		// drawIntMap(cost, kMaxCost)
@@ -104,23 +101,43 @@ func day12(fileName string, expectedValue int) {
 			canGo = canGo && cost[newY][newX] > cost[y][x]+1
 
 			if canGo {
-				fmt.Println("		can go", newX, newY)
+				// fmt.Println("		can go", newX, newY)
 				cost[newY][newX] = curCost + 1
 				if newX == eX && newY == eY {
-					fmt.Println("end cost", curCost+1)
-					if curCost+1 != expectedValue {
-						fmt.Printf("error: got %d, wanted %d\n", cost[eY][eX], expectedValue)
-					}
+					done = true
 					break
 				}
 			}
 		}
 	}
-	drawIntMap(cost, kMaxCost)
-	fmt.Println("min cost", cost[eY][eX])
+	minCost = cost[eY][eX]
+	// drawIntMap(cost, kMaxCost)
+	fmt.Println("cost ", minCost)
+	return
+}
+
+func day12(fileName string, expectedValue int) {
+	b := readInput_12(fileName)
+	sX, sY, eX, eY = findEnds(b)
+	fmt.Println("end: ", eX, eY)
+	// drawMap12(b, Point{sX, sY}, Point{eX, eY})
+
+	var minCost = math.MaxInt32
+	for y := 0; y < b.nRows; y++ {
+		fmt.Println("doing row", y)
+		if b.bytes[y][0] == 'a' {
+			thisCost := SolveOne(b, 0, y)
+			if thisCost < minCost {
+				minCost = thisCost
+				fmt.Printf("y %d cost %d\n", y, minCost)
+			}
+		}
+	}
+	fmt.Println("mincost", minCost)
 }
 
 func drawMap12(m ByteMap, start Point, end Point) {
+	return
 	printRed := color.New(color.FgRed).PrintfFunc()
 
 	for y := 0; y < m.nRows; y++ {
