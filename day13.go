@@ -135,17 +135,9 @@ func Compare(left, right string, depth int) (result CompareResult) {
 	} else {
 		// left and right are different: 1 int, 1 list
 		if typeL == number {
-			elements := Elements(right)
-			if len(elements) == 0 {
-				return GT
-			}
-			return Compare(left, elements[0], depth+1)
+			return Compare("["+left+"]", right, depth+1)
 		} else {
-			elements := Elements(left)
-			if len(elements) == 0 {
-				return LT
-			}
-			result = Compare(elements[0], right, depth+1)
+			result = Compare(left, "["+right+"]", depth+1)
 		}
 	}
 	return
