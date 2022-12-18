@@ -9,6 +9,7 @@ func main() {
 	//day12("data/day12_0.txt", 31)
 	//day12("data/day12_e1.txt", 339)
 	//day12("data/day12_1.txt", 534)
-	// day13("data/day13_0.txt", 13)
-	day13("data/day13_1.txt", 13)
+	//day13("data/day13_0.txt", 13)
+	// day13("data/day13_1.txt", 13)
+	day14("data/day14_0.txt")
 }

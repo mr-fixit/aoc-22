@@ -6,28 +6,44 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
+
+	"golang.org/x/exp/slices"
 )
 
 func day13(fileName string, expectedValue int) {
 	doTests()
-	sum := 0
+	//sum := 0
 	fmt.Println(fileName)
 	file, err := os.Open(fileName)
 	check(err)
 	scanner := bufio.NewScanner(file)
-	for i := 0; scanner.Scan(); i++ {
-		left := scanner.Text()
-		scanner.Scan()
-		right := scanner.Text()
-		scanner.Scan()
-		result := Compare(left, right, 0)
-		fmt.Printf("pair #: %d result: %s\n", i+1, result)
-		if result == LT {
-			fmt.Println("Found ", i+1)
-			sum += i + 1
+	// for i := 0; scanner.Scan(); i++ {
+	// 	left := scanner.Text()
+	// 	scanner.Scan()
+	// 	right := scanner.Text()
+	// 	scanner.Scan()
+	// 	result := Compare(left, right, 0)
+	// 	fmt.Printf("pair #: %d result: %s\n", i+1, result)
+	// 	if result == LT {
+	// 		fmt.Println("Found ", i+1)
+	// 		sum += i + 1
+	// 	}
+	// }
+	// fmt.Println("part1: ", sum) // 5606 too high, 5555 is right
+	var strings = []string{"[[2]]", "[[6]]"}
+	for scanner.Scan() {
+		text := scanner.Text()
+		if len(text) != 0 {
+			strings = append(strings, scanner.Text())
 		}
 	}
-	fmt.Println("part1: ", sum) // 5606 too high
+	sort.Slice(strings, func(i, j int) bool {
+		return Compare(strings[i], strings[j], 0) == LT
+	})
+	i1 := slices.Index(strings, "[[2]]") + 1
+	i2 := slices.Index(strings, "[[6]]") + 1
+	fmt.Println("part2: ", i1, "*", i2, "=", i1*i2)
 }
 
 func doTests() {
@@ -98,12 +114,12 @@ func Elements(in string) (result []string) {
 func Compare(left, right string, depth int) (result CompareResult) {
 	typeL := TypeOf(left)
 	typeR := TypeOf(right)
-	defer func() {
-		fmt.Printf("%s result: %d", pad(depth), result)
-		fmt.Println()
-	}()
-	fmt.Printf("%sL: %s\n", pad(depth), left)
-	fmt.Printf("%sR: %s\n", pad(depth), right)
+	// defer func() {
+	// 	fmt.Printf("%s result: %d", pad(depth), result)
+	// 	fmt.Println()
+	// }()
+	// fmt.Printf("%sL: %s\n", pad(depth), left)
+	// fmt.Printf("%sR: %s\n", pad(depth), right)
 	if typeL == null {
 		if typeR == null {
 			result = EQ
