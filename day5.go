@@ -12,8 +12,8 @@ var stacksP2 []string
 
 func day5() {
 	const dayStr = "5"
-	//file, err := os.Open("day" + dayStr + "_0.txt")
-	file, err := os.Open("day" + dayStr + "_1.txt")
+	//file, err := os.Open("data/day" + dayStr + "_0.txt")
+	file, err := os.Open("data/day" + dayStr + "_1.txt")
 	if err != nil {
 		fmt.Println("err: ", err)
 		os.Exit(1)

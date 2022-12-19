@@ -7,8 +7,8 @@ import (
 )
 
 func day3() {
-	//file, err := os.Open("day3_0.txt")
-	file, err := os.Open("day3_1.txt")
+	//file, err := os.Open("data/day3_0.txt")
+	file, err := os.Open("data/day3_1.txt")
 	if err != nil {
 		fmt.Println("err: ", err)
 		os.Exit(1)

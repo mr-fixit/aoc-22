@@ -8,7 +8,7 @@ import (
 
 func readInput_8() ([][]int, int, int) {
 	out := make([][]int, 0)
-	file, err := os.Open("day8_1.txt")
+	file, err := os.Open("data/day8_1.txt")
 	if err != nil {
 		fmt.Println("err: ", err)
 		os.Exit(1)
