@@ -11,5 +11,6 @@ func main() {
 	//day12("data/day12_1.txt", 534)
 	//day13("data/day13_0.txt", 13)
 	// day13("data/day13_1.txt", 13)
-	day14("data/day14_1.txt")
+	// day14("data/day14_1.txt")
+	day15()
 }
