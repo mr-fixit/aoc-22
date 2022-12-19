@@ -14,7 +14,7 @@ func day14(fileName string) {
 	scanner.Split(bufio.ScanWords)
 	isMoveTo := true
 	commands := make([]Command14, 0)
-	b := ByteMap2{minX: 500, maxX: 500, minY: 0, maxY: 0}
+	b := ByteMap2{maxY: 0}
 	for scanner.Scan() {
 		text := scanner.Text()
 		var x, y int
@@ -25,29 +25,29 @@ func day14(fileName string) {
 		} else {
 			_, err := fmt.Sscanf(text, "%d,%d", &x, &y)
 			check(err)
-			fmt.Printf("moveto(%s) x,y: %d %d\n", isMoveTo, x, y)
-			commands = append(commands, Command14{isMoveTo: isMoveTo, x: x, y: y})
+			//fmt.Printf("moveto(%s) x,y: %d %d\n", isMoveTo, x, y)
+			commands = append(commands, Command14{isMoveTo: isMoveTo, x: x - 500, y: y})
 			isMoveTo = true
-			ExpandMap14(&b, x, y)
+			ExpandMap14(&b, y)
 		}
 	}
 	AllocateMap14(&b)
 	DrawCommands(b, commands)
+	drawMap14(b)
 	nGrains := 0
-	for ; DropOne(b); nGrains++ {
-		//		drawMap14(b)
+	for ; !DropOne(b); nGrains++ {
+		// drawMap14(b)
 	}
 	fmt.Println("part 1:", nGrains)
 }
 
-func DropOne(b ByteMap2) (stopped bool) {
-	x := 500 - b.minX + 1
-	y := 0 - b.minY
-	stopped = false
-	for !stopped {
-		if y > b.maxY-1 {
-			return false
-		}
+func DropOne(b ByteMap2) (done bool) {
+	x := 0 + b.nCols/2
+	y := 0
+	if b.bytes[y][x] != '.' {
+		return true
+	}
+	for stopped := false; !stopped; {
 		if b.bytes[y+1][x] == '.' {
 			y += 1
 		} else if b.bytes[y+1][x-1] == '.' {
@@ -61,13 +61,13 @@ func DropOne(b ByteMap2) (stopped bool) {
 		}
 	}
 	b.bytes[y][x] = 'o'
-	return stopped
+	return false
 }
 
 type ByteMap2 struct {
-	bytes                  [][]byte
-	minX, minY, maxX, maxY int
-	nRows, nCols           int
+	bytes        [][]byte
+	maxY         int
+	nRows, nCols int
 }
 
 type Command14 struct {
@@ -75,36 +75,32 @@ type Command14 struct {
 	x, y     int
 }
 
-func MakeMap14(minX, maxX, minY, maxY int) (b ByteMap2) {
-	b = ByteMap2{minX: minX, maxX: maxX, minY: minY, maxY: maxY}
-	b.nRows = maxY - minY + 2
-	b.nCols = maxX - minX + 2
+func MakeMap14(maxY int) (b ByteMap2) {
+	b = ByteMap2{maxY: maxY}
+	b.maxY = maxY
+	b.nRows = maxY + 2
+	b.nCols = b.nRows*2 + 1
 	return
 }
 
-func ExpandMap14(b *ByteMap2, x, y int) {
-	if b.minX > x {
-		b.minX = x
-	}
-	if b.maxX < x {
-		b.maxX = x
-	}
-	if b.minY > y {
-		b.minY = y
-	}
+func ExpandMap14(b *ByteMap2, y int) {
 	if b.maxY < y {
 		b.maxY = y
 	}
 }
 
 func AllocateMap14(b *ByteMap2) {
-	b.nRows = b.maxY - b.minY + 3
-	b.nCols = b.maxX - b.minX + 3
+	b.nRows = b.maxY + 3
+	b.nCols = b.nRows*2 + 1
 	b.bytes = make([][]byte, 0)
 	for y := 0; y < b.nRows; y++ {
+		fillChar := '.'
+		if y == b.nRows-1 { // bottom row
+			fillChar = '#'
+		}
 		row := make([]byte, b.nCols)
 		for x := 0; x < b.nCols; x++ {
-			row[x] = '.'
+			row[x] = byte(fillChar)
 		}
 		b.bytes = append(b.bytes, row)
 	}
@@ -112,7 +108,7 @@ func AllocateMap14(b *ByteMap2) {
 
 func drawMap14(m ByteMap2) {
 	for y := 0; y < m.nRows; y++ {
-		fmt.Printf("%3d: ", y+m.minY)
+		fmt.Printf("%3d: ", y)
 		for x := 0; x < m.nCols; x++ {
 			fmt.Printf("%s", string(m.bytes[y][x]))
 		}
@@ -123,13 +119,14 @@ func drawMap14(m ByteMap2) {
 func DrawCommands(b ByteMap2, cmds []Command14) {
 	var curX, curY int
 	for _, cmd := range cmds {
+		cmdX := cmd.x + b.nCols/2
 		if cmd.isMoveTo {
-			curX = cmd.x
+			curX = cmdX
 			curY = cmd.y
 		} else { // line to
 			dx, dy := 0, 0
-			if curX != cmd.x {
-				if curX < cmd.x {
+			if curX != cmdX {
+				if curX < cmdX {
 					dx = 1
 				} else {
 					dx = -1
@@ -143,13 +140,12 @@ func DrawCommands(b ByteMap2, cmds []Command14) {
 			} else {
 				panic("why a zero-length line?")
 			}
-			b.bytes[curY-b.minY][curX-b.minX+1] = '#'
-			for curX != cmd.x || curY != cmd.y {
+			b.bytes[curY][curX] = '#'
+			for curX != cmdX || curY != cmd.y {
 				curX += dx
 				curY += dy
-				b.bytes[curY-b.minY][curX-b.minX+1] = '#'
+				b.bytes[curY][curX] = '#'
 			}
 		}
-		drawMap14(b)
 	}
 }
