@@ -7,7 +7,8 @@ import (
 )
 
 type Line15 struct {
-	sx, sy, bx, by int
+	sx, sy, bx, by int // sensor & beacon: x & y
+	mDist          int // manhattan distance from sensor to beacon
 }
 
 func day15() {
@@ -25,8 +26,12 @@ func day15() {
 	for scanner.Scan() {
 		line := Line15{}
 		fmt.Sscanf(scanner.Text(), "Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d", &line.sx, &line.sy, &line.bx, &line.by)
-		// fmt.Println(sx, sy, bx, by)
-		lines = append(lines, line)
+		line.mDist = ManhattanDist(line)
+		if line.sy-line.mDist > maxCoord {
+			fmt.Println("ignoring line ", line)
+		} else {
+			lines = append(lines, line)
+		}
 	}
 
 	for targetY := 0; targetY < maxCoord; targetY++ {
@@ -39,18 +44,13 @@ func day15() {
 
 func do15_2(lines []Line15, targetY int, maxCoord int) {
 	foo := make(map[int]bool, 1000)
-	beaconsInLine := make(map[int]bool, 0) // true if there's a beacon at X in the target line
 	for _, line := range lines {
-		mDist := abs(line.sx-line.bx) + abs(line.sy-line.by)
 		yDist := abs(line.sy - targetY)
-		xDist := mDist - yDist
+		xDist := line.mDist - yDist
 		for x := line.sx - xDist; x <= line.sx+xDist; x++ {
 			if x >= 0 && x <= maxCoord {
 				foo[x] = true
 			}
-		}
-		if line.by == targetY {
-			beaconsInLine[line.bx] = true
 		}
 	}
 	nPossible := len(foo) + 1 - maxCoord
@@ -61,6 +61,10 @@ func do15_2(lines []Line15, targetY int, maxCoord int) {
 			}
 		}
 	}
+}
+
+func ManhattanDist(line Line15) int {
+	return abs(line.sx-line.bx) + abs(line.sy-line.by)
 }
 
 func do15(fileName string, targetY int, expected int) {
