@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"golang.org/x/exp/slices"
 )
 
 type Line15 struct {
@@ -15,9 +17,17 @@ func day15() {
 	// do15("data/day15_0.txt", 10, 26)
 	// do15("data/day15_1.txt", 2000000, 5832528)
 
-	maxCoord := 4000000
+	var maxCoord int
+	var fileName string
+	if false {
+		maxCoord = 20
+		fileName = "data/day15_0.txt"
+	} else {
+		maxCoord = 4000000
+		fileName = "data/day15_1.txt"
+	}
 
-	file, err := os.Open("data/day15_1.txt")
+	file, err := os.Open(fileName)
 	check(err)
 	defer file.Close()
 
@@ -43,23 +53,19 @@ func day15() {
 }
 
 func do15_2(lines []Line15, targetY int, maxCoord int) {
-	foo := make(map[int]bool, 1000)
+	foo := make([]byte, maxCoord+1)
 	for _, line := range lines {
 		yDist := abs(line.sy - targetY)
 		xDist := line.mDist - yDist
 		for x := line.sx - xDist; x <= line.sx+xDist; x++ {
 			if x >= 0 && x <= maxCoord {
-				foo[x] = true
+				foo[x] = 1
 			}
 		}
 	}
-	nPossible := len(foo) + 1 - maxCoord
-	if nPossible > 0 {
-		for i := 0; i < maxCoord+1; i++ {
-			if !foo[i] {
-				fmt.Printf("found x,y %d,%d, tuning: %d\n", i, targetY, 4000000*i+targetY)
-			}
-		}
+	idx := slices.Index(foo, 0)
+	if idx != -1 {
+		fmt.Printf("found x,y %d,%d, tuning: %d\n", idx, targetY, 4000000*idx+targetY)
 	}
 }
 
