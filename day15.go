@@ -4,13 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-
-	"golang.org/x/exp/slices"
 )
 
 type Line15 struct {
-	sx, sy, bx, by int // sensor & beacon: x & y
-	mDist          int // manhattan distance from sensor to beacon
+	sx, sy, bx, by int   // sensor & beacon: x & y
+	mDist          int   // manhattan distance from sensor to beacon
+	pt             Point // sensor coordinates
 }
 
 func day15() {
@@ -37,6 +36,7 @@ func day15() {
 		line := Line15{}
 		fmt.Sscanf(scanner.Text(), "Sensor at x=%d, y=%d: closest beacon is at x=%d, y=%d", &line.sx, &line.sy, &line.bx, &line.by)
 		line.mDist = ManhattanDist(line)
+		line.pt = Point{line.sx, line.sy}
 		if line.sy-line.mDist > maxCoord {
 			fmt.Println("ignoring line ", line)
 		} else {
@@ -44,29 +44,52 @@ func day15() {
 		}
 	}
 
-	for targetY := 0; targetY < maxCoord; targetY++ {
-		if targetY%10 == 0 {
-			fmt.Println("line ", targetY)
-		}
-		do15_2(lines, targetY, maxCoord)
-	}
+	do15_2(lines, maxCoord)
 }
 
-func do15_2(lines []Line15, targetY int, maxCoord int) {
-	foo := make([]byte, maxCoord+1)
-	for _, line := range lines {
-		yDist := abs(line.sy - targetY)
-		xDist := line.mDist - yDist
-		for x := line.sx - xDist; x <= line.sx+xDist; x++ {
-			if x >= 0 && x <= maxCoord {
-				foo[x] = 1
+func do15_2(sensors []Line15, maxCoord int) {
+	// look for sensors that have a gap between them
+	gappers := make([]Line15, 0)
+	for i := 0; i < len(sensors); i++ {
+		s1 := sensors[i]
+		for j := i + 1; j < len(sensors); j++ {
+			s2 := sensors[j]
+			sensorDistance := abs(s1.sx-s2.sx) + abs(s1.sy-s2.sy)
+			combinedRange := s1.mDist + s2.mDist
+			delta := sensorDistance - combinedRange
+			if delta == 2 {
+				fmt.Println(i, j, delta)
+				gappers = append(append(gappers, s1), s2)
 			}
 		}
 	}
-	idx := slices.Index(foo, 0)
-	if idx != -1 {
-		fmt.Printf("found x,y %d,%d, tuning: %d\n", idx, targetY, 4000000*idx+targetY)
+	s1 := gappers[0]
+	x := s1.sx - s1.mDist - 1
+	y := s1.sy
+	dx, dy := 1, -1
+	nextTurn := Point{x: s1.sx, y: s1.sy - s1.mDist - 1}
+	for y != nextTurn.y || x != nextTurn.x {
+		here := Point{x, y}
+		man1 := ManDistPoint(here, s1.pt) - s1.mDist
+		if man1 != 1 {
+			panic("bad")
+		}
+		man2 := ManDistPoint(here, gappers[1].pt) - gappers[1].mDist
+		if man2 == 1 {
+			man3 := ManDistPoint(here, gappers[2].pt) - gappers[2].mDist
+			if man3 == 1 {
+				fmt.Println(here, man1, man2, man3, ManDistPoint(here, gappers[3].pt)-gappers[3].mDist, 4000000*x+y)
+			}
+
+		}
+		x += dx
+		y += dy
 	}
+
+}
+
+func ManDistPoint(p1, p2 Point) int {
+	return abs(p1.x-p2.x) + abs(p1.y-p2.y)
 }
 
 func ManhattanDist(line Line15) int {

@@ -14,10 +14,6 @@ type ByteMap struct {
 	nRows, nCols int
 }
 
-type Point struct {
-	x, y int
-}
-
 var kMaxCost = 9999999
 
 func inBounds(x, y int, board ByteMap) bool {

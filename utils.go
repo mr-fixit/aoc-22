@@ -12,3 +12,7 @@ func abs(a int) int {
 	}
 	return a
 }
+
+type Point struct {
+	x, y int
+}
